@@ -20,7 +20,7 @@ A subgraph is a self-contained unit of processing within an agent strategy. Each
 - Produces output that is passed to the next subgraph (or the output)
 
 To define a sequence of subgraphs in a graph, use edge connections or define sequences using the `then` keyword. For
-more information, see [Custom strategy graphs](custom-strategy-graphs.md).
+more information, see [Sequential chaining with the then function](custom-strategy-graphs.md#sequential-chaining-with-the-then-function).
 
 ### Subgraph context
 
