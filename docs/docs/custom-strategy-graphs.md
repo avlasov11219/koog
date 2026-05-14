@@ -142,6 +142,54 @@ You can transform the output before passing it to the target node by using the `
     ```
     <!--- KNIT exampleCustomStrategyGraphsJava02.java -->
 
+#### Sequential chaining with the then function
+
+For linear pipelines where each node passes its output directly to the next with no conditions or
+transformations, you can use the `then` infix function instead of writing a separate [`edge` call](#edges)
+for each transition:
+
+<!--- INCLUDE
+import ai.koog.agents.core.dsl.builder.forwardTo
+import ai.koog.agents.core.dsl.builder.strategy
+import ai.koog.agents.core.dsl.builder.node
+import ai.koog.agents.core.dsl.builder.parallel
+import ai.koog.agents.core.dsl.builder.subgraph
+val strategy = strategy<String, String>("strategy_name") {
+    val processInput by node<String, String> { input -> input }
+    val transformData by node<String, String> { input -> input }
+    val formatOutput by node<String, String> { input -> input }
+-->
+<!--- SUFFIX
+}
+-->
+```kotlin
+nodeStart then processInput then transformData then formatOutput then nodeFinish
+```
+<!--- KNIT example-custom-strategy-graphs-12.kt -->
+
+!!! note
+    The `then` function is only available in Kotlin. In Java, use sequential `graph.edge()` calls instead.
+
+The `then` infix function creates an unconditional edge from the current node to the next and
+returns the next node, which allows further chaining. The Kotlin example above is equivalent to:
+
+```kotlin
+edge(nodeStart forwardTo processInput)
+edge(processInput forwardTo transformData)
+edge(transformData forwardTo formatOutput)
+edge(formatOutput forwardTo nodeFinish)
+```
+
+Using `then` in place of individual `edge` calls:
+
+- Makes the sequence of nodes readable as a left-to-right pipeline
+- Reduces boilerplate when connecting multiple nodes without conditions
+- Catches type mismatches between adjacent nodes at compile time
+
+For transitions that require a condition (such as `onToolCall` or `onAssistantMessage`) or a
+`transformed` block, use the [`edge` function](#edges) instead. The `then` function only creates
+unconditional, pass-through connections.
+
 ### Subgraphs
 
 Subgraphs are sections of the strategy graph that operate with their own set of tools and context.
@@ -486,6 +534,16 @@ edge(someNode forwardTo executeMultipleTools)
 edge(executeMultipleTools forwardTo processMultipleResults)
 ```
 <!--- KNIT example-custom-strategy-graphs-07.kt -->
+
+!!! tip
+
+    Because both edges above are unconditional, you can use `then` as a shorter alternative:
+
+    ```kotlin
+    someNode then executeMultipleTools then processMultipleResults
+    ```
+
+    For more information, see [Sequential chaining with the then function](#sequential-chaining-with-the-then-function).
 
 You can also use the `toParallelToolCallsRaw` extension function for streaming data:
 
