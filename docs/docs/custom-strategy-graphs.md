@@ -148,55 +148,26 @@ For linear pipelines where each node passes its output directly to the next with
 transformations, you can use the `then` infix function instead of writing a separate `edge` call
 for each transition. This makes the data flow immediately readable as a left-to-right sequence:
 
-=== "Kotlin"
+<!--- INCLUDE
+import ai.koog.agents.core.dsl.builder.forwardTo
+import ai.koog.agents.core.dsl.builder.strategy
+import ai.koog.agents.core.dsl.builder.node
+import ai.koog.agents.core.dsl.builder.parallel
+import ai.koog.agents.core.dsl.builder.subgraph
+val strategy = strategy<String, String>("strategy_name") {
+    val processInput by node<String, String> { input -> input }
+    val transformData by node<String, String> { input -> input }
+    val formatOutput by node<String, String> { input -> input }
+-->
+<!--- SUFFIX
+}
+-->
+```kotlin
+nodeStart then processInput then transformData then formatOutput then nodeFinish
+```
+<!--- KNIT example-custom-strategy-graphs-12.kt -->
 
-    <!--- INCLUDE
-    import ai.koog.agents.core.dsl.builder.forwardTo
-    import ai.koog.agents.core.dsl.builder.strategy
-    import ai.koog.agents.core.dsl.builder.node
-    import ai.koog.agents.core.dsl.builder.parallel
-    import ai.koog.agents.core.dsl.builder.subgraph
-    val strategy = strategy<String, String>("strategy_name") {
-        val processInput by node<String, String> { input -> input }
-        val transformData by node<String, String> { input -> input }
-        val formatOutput by node<String, String> { input -> input }
-    -->
-    <!--- SUFFIX
-    }
-    -->
-    ```kotlin
-    nodeStart then processInput then transformData then formatOutput then nodeFinish
-    ```
-    <!--- KNIT example-custom-strategy-graphs-12.kt -->
-
-=== "Java"
-
-    <!--- INCLUDE
-    import ai.koog.agents.core.agent.entity.AIAgentGraphStrategy;
-    import ai.koog.agents.core.agent.entity.AIAgentNode;
-    class exampleCustomStrategyGraphsJava07 {
-        public static void main(String[] args) {
-            var graph = AIAgentGraphStrategy.builder("strategyName")
-                .withInput(String.class)
-                .withOutput(String.class);
-            var processInput = AIAgentNode.doNothing(String.class);
-            var transformData = AIAgentNode.doNothing(String.class);
-            var formatOutput = AIAgentNode.doNothing(String.class);
-    -->
-    <!--- SUFFIX
-        }
-    }
-    -->
-    ```java
-    graph.edge(graph.nodeStart, processInput);
-    graph.edge(processInput, transformData);
-    graph.edge(transformData, formatOutput);
-    graph.edge(formatOutput, graph.nodeFinish);
-    ```
-    <!--- KNIT exampleCustomStrategyGraphsJava07.java -->
-
-The `then` infix function is only available in Kotlin. In Java, connect nodes sequentially using
-`graph.edge()` calls as shown above.
+The `then` function is only available in Kotlin. In Java, use sequential `graph.edge()` calls instead.
 
 The `then` infix function creates an unconditional edge from the current node to the next and
 returns the next node, which allows further chaining. The Kotlin example above is equivalent to:
@@ -571,7 +542,7 @@ edge(executeMultipleTools forwardTo processMultipleResults)
     someNode then executeMultipleTools then processMultipleResults
     ```
 
-    For more information, see [Sequential chaining with `then`](#sequential-chaining-with-then).
+    For more information, see [Sequential chaining with the then function](#sequential-chaining-with-the-then-function).
 
 You can also use the `toParallelToolCallsRaw` extension function for streaming data:
 
